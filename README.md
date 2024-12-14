@@ -24,3 +24,43 @@ Samples active oscilloscope channels in Roll mode at the trigger point. Outputs 
 	-p           Plot samples (only available with sample limit)
 	
 	Outputs timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Scope Roll mode must be enabled.
+
+## Bode Plot
+
+![Bode Plot](img/bodeplot1.png)
+![Bode Plot](img/bodeplot2.png)
+
+The SDS1104X-U omits the bode plot feature of the SDS1104X-E, which has it control an external Siglent AWG to sweep a sine wave across a range of frequencies while measuring the input to and output from a device under test (DUT). At each frequency point, gain and phase are measured and displayed on the plot.
+
+`bodeplot.py` creates similar functionality for the SDS1104X-U and SDG1032X. To use it:
+
+1. Enable channel tracking on the AWG by selecting *Utility > CH Copy Coupling > Track ON*;
+1. Connect AWG channel 1 to the input of the DUT;
+1. Connect AWG channel 2 to DSO channel 1;
+1. Connect DSO channel 2 to the output of the DUT.
+
+Enter `bodeplot.py -amp 10 -a1 1`
+
+This has the DSO measure the Vpp of channel 1 and 2 as well as their phase difference while the AWG sweeps a 10 Vpp sine wave from 1 kHz to 100 kHz. It writes the measurements to `stdout` in CSV format, and plots the results. Because AWG channel 2 is directly connected to DSO channel 1, its probe attenuation is set to 1 in this example. If you do not use channel coupling and use a 10x probe instead, then the `-a1` argument can be omitted. 
+
+	usage: bodeplot.py [-h] [-in inchannel] [-out outchannel] [-awg awgchannel] [-amp amplitude] [-fs startfreq] [-fe endfreq] [-a1 attenuation] [-a2 attenuation] [-q quality]
+	[-d delay]
+	
+	Bode Plot
+	
+	optional arguments:
+	-h, --help       show this help message and exit
+	-in inchannel    DSO channel for AWG output ([1-4], default is 1)
+	-out outchannel  DSO channel for DUT ([1-4], default is 2)
+	-awg awgchannel  AWG output channel ([1,2], default is 1)
+	-amp amplitude   AWG sine wave amplitude in V (default is 1)
+	-fs startfreq    Sweep start frequency in Hz (default is 1000)
+	-fe endfreq      Sweep end frequency in Hz (default is 100000)
+	-a1 attenuation  Probe attenuation factor for inchannel (default is 10)
+	-a2 attenuation  Probe attenuation factor for outchannel (default is 10)
+	-q quality       Output quality ([1-10], default is 1)
+	-d delay         Delay between measurements in seconds (default is 0)
+	
+	Creates Bode Plot and CSV output using SDS1104X-U and DSG1032X.
+
+The `-d` argument is useful if Average acquisition mode is used, to have it settle down for a few seconds before the Vpp and phase is measured.

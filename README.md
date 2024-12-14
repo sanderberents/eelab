@@ -64,3 +64,24 @@ This has the DSO measure the Vpp of channel 1 and 2 as well as their phase diffe
 	Creates Bode Plot and CSV output using SDS1104X-U and DSG1032X.
 
 The `-d` argument is useful if Average acquisition mode is used, to have it settle down for a few seconds before the Vpp and phase is measured.
+
+# SCPI Utility
+
+SCPI utility for SDS1104X-U and DSG1032X.
+
+For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD? PHA" -x`.
+
+	usage: scpi.py [-h] [-q query] [-c command] [-x] target
+	
+	SCPI Utility
+	
+	positional arguments:
+	target      Target instrument (one of 'dso' or 'awg')
+	
+	optional arguments:
+	-h, --help  show this help message and exit
+	-q query    SCPI query
+	-c command  SCPI command
+	-x          Output query result as byte array
+	
+	Submit SCPI command or query to SDS1104X-U or DSG1032X.

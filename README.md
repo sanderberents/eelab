@@ -11,19 +11,22 @@ Prerequisites:
 
 ![Data Logger](img/datalogger.png)
 
-Samples active oscilloscope channels in Roll mode at the trigger point. Outputs each sample's timestamp, elapsed time, and voltage of the active channels to `stdout` in CSV format. Optionally plots the output. It is assumed that each channel is set up with the optimal vertical scale and position.
+Samples active oscilloscope channels in Roll mode at the trigger point. Outputs each sample's timestamp, elapsed time, and voltage of the active channels to `stdout` in CSV format. Optionally plots the output. It is assumed that each channel is set up with the optimal vertical scale and position. Can also be used in combination with the AWG by having it step through a range of voltages before each sample. In this mode it should be used with a timebase of at most 1ms per division, not in Roll mode.
 
-	usage: datalogger.py [-h] [-i interval] [-n limit] [-p]
+	usage: datalogger.py [-h] [-i interval] [-n limit] [-p] [-awg awgchannel] [-vmin vmin] [-vmax vmax]
 	
 	Data Logger
 	
 	optional arguments:
-	-h, --help   show this help message and exit
-	-i interval  Sample interval in seconds (default is 1)
-	-n limit     Maximum number of samples (default is unlimited)
-	-p           Plot samples (only available with sample limit)
+	-h, --help       show this help message and exit
+	-i interval      Sample interval in seconds (default is 1)
+	-n limit         Maximum number of samples (default is unlimited)
+	-p               Plot samples (only available with sample limit)
+	-awg awgchannel  AWG output channel ([1,2], AWG off by default)
+	-vmin vmin       AWG minimum DC voltage (default is 0)
+	-vmax vmax       AWG maximum DC voltage (default is 1)
 	
-	Outputs timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Scope Roll mode must be enabled.
+	Output timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Optionally change SDG1032X DC voltage before taking each sample.
 
 ## Bode Plot
 

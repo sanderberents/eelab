@@ -4,9 +4,18 @@ Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform 
 
 Prerequisites:
 
+- SDS1104X-U and SDG1032X connected to the computer with USB cables
 - `pip3 install -U pyvisa`
 - `pip3 install -U matplotlib`
 
+Scripts:
+
+- [Data Logger](#datalogger)
+- [Bode Plot](#bodeplot)
+- [Autoscale](#autoscale)
+- [SCPI Utility](#scpi)
+
+<a name="datalogger"></a>
 ## Data Logger
 
 ![Data Logger](img/datalogger.png)
@@ -28,6 +37,7 @@ Samples active oscilloscope channels in Roll mode at the trigger point. Outputs 
 	
 	Output timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Optionally change SDG1032X DC voltage before taking each sample.
 
+<a name="bodeplot"></a>
 ## Bode Plot
 
 ![Bode Plot](img/bodeplot1.png)
@@ -68,6 +78,30 @@ This has the DSO measure the Vpp of channel 1 and 2 as well as their phase diffe
 
 The `-d` argument is useful if Average acquisition mode is used, to have it settle down for a few seconds before the Vpp and phase is measured.
 
+<a name="autoscale"></a>
+# Autoscale
+
+Optimizes the vertical offset and scale of active SDS1104X-U scope channels. Assumes that the minimum and maximum values of the signals each fit within the screen limits before the script is executed.
+
+	usage: autoscale.py [-h] [-d vdiv] [-i iterations]
+	
+	Autoscale
+	
+	optional arguments:
+	-h, --help     show this help message and exit
+	-d vdiv        Vertical divisions (default is 7.5)
+	-i iterations  Number of iterations (default is 2)
+	
+	Optimizes vertical offset and scale of active scope channels.
+
+This script is an ideal candidate for assigning a keyboard shortcut. On my Mac, I created a Shell Script shortcut with the Shortcuts application:
+
+	DIR=~/Projects/eelab
+	$DIR/autoscale.py
+
+I then added it to the menu bar, and assigned the `Control-Option-Command-A` keyboard shortcut to it.
+
+<a name="scpi"></a>
 # SCPI Utility
 
 SCPI utility for SDS1104X-U and DSG1032X.
@@ -88,3 +122,4 @@ For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD
 	-x          Output query result as byte array
 	
 	Submit SCPI command or query to SDS1104X-U or DSG1032X.
+	

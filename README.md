@@ -15,6 +15,8 @@ Scripts:
 - [Autoscale](#autoscale)
 - [SCPI Utility](#scpi)
 
+[SDS1104X-U Limitations and Firmware bugs](SDS1104X-U.md)
+
 <a name="datalogger"></a>
 ## Data Logger
 

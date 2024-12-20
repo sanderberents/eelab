@@ -56,12 +56,6 @@ Firmware: 1.1.5R6 (2021-05-11).
 	
 	Workaround: don't use this query.
 
-- `MEGS ON` / `MEGS OFF`
-
-	Does not turn on or off the gate measurements.
-	
-	Workaround: Manually turn on or off.
-
 - Cursor track mode is slow. Gate measurements is faster and should be used instead with SCPI.
 
 - Waveform download is broken.

@@ -56,7 +56,7 @@ def vunit(v):
 	units = ("V", "mV", "uV")
 	factors = (1, 1e-3, 1e-6)
 	for i in range(0, len(units)):
-		if v >= factors[i]: return f"{v / factors[i]}{units[i]}"
+		if abs(v) >= factors[i]: return f"{v / factors[i]}{units[i]}"
 	return "1uV"
 
 def vautoscale(ch):
@@ -170,9 +170,10 @@ dsoch2 = f"C{args.cout}" # DUT channel
 wait()
 
 # AWG setup: sine wave, amplitude, HiZ output ON
+awg.write(f"{awgch}:OUTP LOAD,HZ,PLRT,NOR")
 awg.write(f"{awgch}:BSWV WVTP,SINE")
 awg.write(f"{awgch}:BSWV FRQ,{args.fs}")
-awg.write(f"{awgch}:OUTP LOAD,HZ,PLRT,NOR")
+awg.write(f"{awgch}:BSWV OFST,0")
 awg.write(f"{awgch}:BSWV AMP,{args.amp}")
 awg.write(f"{awgch}:OUTP ON")
 

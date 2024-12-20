@@ -94,8 +94,8 @@ elif args.limit != 0:
 	if scrollmode:
 		errprint("Warning: scope roll mode enabled")
 	# AWG setup: DC, offset, HiZ output ON
-	awg.write(f"{awgch}:BSWV WVTP,DC")
 	awg.write(f"{awgch}:OUTP LOAD,HZ,PLRT,NOR")
+	awg.write(f"{awgch}:BSWV WVTP,DC")
 	awg.write(f"{awgch}:BSWV OFST,{args.vmin}")
 	awg.write(f"{awgch}:OUTP ON")
 	dvawg = (args.vmax - args.vmin) / (args.limit - 1)

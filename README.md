@@ -1,6 +1,6 @@
 # Home Electronics Lab
 
-Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform Generator with SCPI.
+Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform Generator with SCPI. Because of firmware bugs and the resulting inability to download samples directly from the oscilloscope, the scripts use different approaches to obtain the necessary measurements.
 
 Prerequisites:
 
@@ -10,34 +10,13 @@ Prerequisites:
 
 Scripts:
 
-- [Data Logger](#datalogger)
 - [Bode Plot](#bodeplot)
+- [Curve Tracer](#curvetracer)
+- [Data Logger](#datalogger)
 - [Autoscale](#autoscale)
 - [SCPI Utility](#scpi)
 
 [SDS1104X-U Limitations and Firmware bugs](SDS1104X-U.md)
-
-<a name="datalogger"></a>
-## Data Logger
-
-![Data Logger](img/datalogger.png)
-
-Samples active oscilloscope channels in Roll mode at the trigger point. Outputs each sample's timestamp, elapsed time, and voltage of the active channels to `stdout` in CSV format. Optionally plots the output. It is assumed that each channel is set up with the optimal vertical scale and position. Can also be used in combination with the AWG by having it step through a range of voltages before each sample. In this mode it should be used with a timebase of at most 1ms per division, not in Roll mode.
-
-	usage: datalogger.py [-h] [-i interval] [-n limit] [-p] [-awg awgchannel] [-vmin vmin] [-vmax vmax]
-	
-	Data Logger
-	
-	optional arguments:
-	-h, --help       show this help message and exit
-	-i interval      Sample interval in seconds (default is 1)
-	-n limit         Maximum number of samples (default is unlimited)
-	-p               Plot samples (only available with sample limit)
-	-awg awgchannel  AWG output channel ([1,2], AWG off by default)
-	-vmin vmin       AWG minimum DC voltage (default is 0)
-	-vmax vmax       AWG maximum DC voltage (default is 1)
-	
-	Output timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Optionally change SDG1032X DC voltage before taking each sample.
 
 <a name="bodeplot"></a>
 ## Bode Plot
@@ -79,6 +58,52 @@ This has the DSO measure the Vpp of channel 1 and 2 as well as their phase diffe
 	Creates Bode Plot and CSV output using SDS1104X-U and DSG1032X.
 
 The `-d` argument is useful if Average acquisition mode is used, to have it settle down for a few seconds before the Vpp and phase is measured.
+
+<a name="curvetracer"></a>
+## Curve Tracer
+
+![Data Logger](img/curvetracer1.png)
+![Data Logger](img/curvetracer2.png)
+
+Samples the currently displayed signal of the active DSO channels, optionally controlling the AWG by enabling a sine wave on one channel and stepping through a series of DC voltages on another channel. Without arguments, this script produces a snapshot of the current trace.
+
+	Curve Tracer
+	
+	optional arguments:
+	-h, --help         show this help message and exit
+	-awg awgchannel    AWG sine wave output channel ([1,2])
+	-amp amplitude     Sine wave amplitude in V (default is 2)
+	-o offset          Sine wave offset in V (default is 0)
+	-f freq            Sine wave frequency in Hz (default is 1000)
+	-dcawg awgchannel  AWG DC output channel ([1,2])
+	-vmin vmin         AWG minimum DC voltage (default is 0)
+	-vmax vmax         AWG maximum DC voltage (default is 2)
+	-n steps           Number of DC steps (default is 5)
+	-q quality         Output quality ([1-10], default is 1)
+	
+	Samples signal of active DSO channels, optionally enabling a sine wave and stepping through a series of DC voltages with the AWG.
+
+<a name="datalogger"></a>
+## Data Logger
+
+![Data Logger](img/datalogger.png)
+
+Samples active oscilloscope channels in Roll mode at the trigger point. Outputs each sample's timestamp, elapsed time, and voltage of the active channels to `stdout` in CSV format. Optionally plots the output. It is assumed that each channel is set up with the optimal vertical scale and position. Can also be used in combination with the AWG by having it step through a range of voltages before each sample. In this mode it should be used with a timebase of at most 1ms per division, not in Roll mode.
+
+	usage: datalogger.py [-h] [-i interval] [-n limit] [-p] [-awg awgchannel] [-vmin vmin] [-vmax vmax]
+	
+	Data Logger
+	
+	optional arguments:
+	-h, --help       show this help message and exit
+	-i interval      Sample interval in seconds (default is 1)
+	-n limit         Maximum number of samples (default is unlimited)
+	-p               Plot samples (only available with sample limit)
+	-awg awgchannel  AWG output channel ([1,2], AWG off by default)
+	-vmin vmin       AWG minimum DC voltage (default is 0)
+	-vmax vmax       AWG maximum DC voltage (default is 1)
+	
+	Output timestamp, elapsed time, and voltage of active scope channels at trigger point with SDS1104X-U. Optionally change SDG1032X DC voltage before taking each sample.
 
 <a name="autoscale"></a>
 # Autoscale

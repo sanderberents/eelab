@@ -16,10 +16,8 @@ import re
 import argparse
 import pyvisa
 import matplotlib.pyplot as plt
+from eelib import *
 
-def errprint(*args, **kwargs):
-	print(*args, file=sys.stderr, **kwargs)
-	
 def wait():
 	"""Small delay for DSO or AWG command processing."""
 	time.sleep(args.delay)
@@ -27,81 +25,10 @@ def wait():
 	awg.query("*OPC?")
 	dso.query("*OPC?")
 
-def norm_angle(x):
-	"""Normalizes angle to value between [-180,180[."""
-	x = x % 360
-	if x >= 180:
-		x -= 360
-	elif x < -180:
-		x += 360
-	return x
-
 def step(f):
 	"""Computes frequency sweep step size for given frequency."""
 	p = math.floor(math.log10(f))
 	return round((10 ** p) / args.quality)
-
-def hscale(f):
-	"""Computes optimal horizontal scale for given frequency."""
-	t = 1 / (f * 4)
-	units = ("ns", "us", "ms", "s")
-	factors = (1e-9, 1e-6, 1e-3, 1)
-	for i in range(0, len(units)):
-		for j in (1, 2, 5, 10, 20, 50, 100, 200, 500):
-			if j * factors[i] > t: return f"{j}{units[i]}"
-	return "1s"
-
-def vunit(v):
-	"""Returns voltage with proper unit."""
-	units = ("V", "mV", "uV")
-	factors = (1, 1e-3, 1e-6)
-	for i in range(0, len(units)):
-		if abs(v) >= factors[i]: return f"{v / factors[i]}{units[i]}"
-	return "1uV"
-
-def vautoscale(ch):
-	"""Automatic vertical scale adjustment."""
-	# First measures Vpp, then adjusts vertical scale
-	s = dso.query(f"{ch}:PAVA? PKPK").strip()
-	match = re.search("^C\d:PAVA PKPK,(.*)V$", s)
-	if match and not match.group(1).startswith("*"):
-		vpp = float(match.group(1))
-		vs = vunit(vpp / 7.5)
-		dso.write(f"{ch}:VDIV {vs}")
-	else:
-		errprint(f"Error parsing Vpp for autoscale: {s}")
-		sys.exit(1)
-
-def dBV(v):
-	return 20 * math.log10(v)
-
-def measure_vpp(ch):
-	"""Returns Vpp of given DSO channel."""
-	# Assumes optimal vertical scale
-	s = dso.query(f"{ch}:PAVA? PKPK").strip()
-	match = re.search("^C\d:PAVA PKPK,(.*)V$", s)
-	if match and not match.group(1).startswith("*"):
-		vpp = float(match.group(1))
-	else:
-		errprint(f"Error parsing Vpp: {s}")
-		sys.exit(2)
-	return vpp
-
-def measure_phase(ch1, ch2):
-	"""Returns phase difference between two DSO channels."""
-	# Assumes optimal horizontal and vertical scales
-	dso.write(f"{ch2}-{ch1}:MEAD? PHA") # Query returns extra \xa1\xe3 data, so using read_raw
-	s = dso.read_raw()[:-2].decode()
-	match = re.search("^C\d-C\d:MEAD PHA,(.*)$", s)
-	if match:
-		if match.group(1).startswith("*"):
-			phase = 0
-		else:
-			phase = norm_angle(float(match.group(1)))
-	else:
-		errprint(f"Error parsing phase: {s}")
-		sys.exit(4)
-	return phase
 
 def plotvpp(xpts, vpps1, vpps2, phases):
 	"""Plots Vpp and phase difference of two channels on logarithmic scales."""
@@ -154,15 +81,6 @@ parser.add_argument('-q', type=int, choices=range(1, 11), dest='quality', defaul
 parser.add_argument('-d', type=float, dest='delay', default=0, metavar='delay', help="Delay between measurements in seconds (default is 0)")
 args = parser.parse_args()
 
-rm = pyvisa.ResourceManager()
-for instr in rm.list_resources():
-	match = re.search("::SDS.*::INSTR$", instr)
-	if match:
-		dso = rm.open_resource(instr)
-	match = re.search("::SDG.*::INSTR$", instr)
-	if match:
-		awg = rm.open_resource(instr)
-			
 awgch = f"C{args.cawg}"
 dsoch1 = f"C{args.cin}" # Channel for measuring AWG output
 dsoch2 = f"C{args.cout}" # DUT channel
@@ -244,8 +162,7 @@ while f <= args.fe:
 	f += df
 
 awg.write(f"{awgch}:OUTP OFF")
-awg.close()
-dso.close()
+close_resources()
 
 plt.figure()
 plotvpp(xpts, vpps1, vpps2, phases)

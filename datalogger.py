@@ -17,9 +17,7 @@ import re
 import argparse
 import pyvisa
 import matplotlib.pyplot as plt
-
-def errprint(*args, **kwargs):
-	print(*args, file=sys.stderr, **kwargs)
+from eelib import *
 
 def wait():
 	"""Small delay for DSO or AWG command processing."""
@@ -27,27 +25,6 @@ def wait():
 	awg.query("*OPC?")
 	dso.query("*OPC?")
 	
-def active_channels():
-	"""Returns active DSO channels."""
-	channels = []
-	for ch in ['C1', 'C2', 'C3', 'C4']:
-		s = dso.query(f"{ch}:TRA?").strip()
-		match = re.search("^(C\d):TRA ON$", s)
-		if match: channels.append(match.group(1))
-	return channels
-
-def measure_sample(ch):
-	"""Returns V of given DSO channel at the trigger point."""
-	# Assumes optimal vertical scale
-	s = dso.query(f"{ch}:PAVA? LEVELX").strip()
-	match = re.search("^C\d:PAVA LEVELX,(.*)V$", s)
-	if match:
-		sample = float(match.group(1))
-	else:
-		errprint(f"Error parsing: {s}")
-		sys.exit(2)
-	return sample
-
 def plot(xpts, ypts, channels):
 	"""Plots V of given channels."""
 	colors = [ 'gold', 'magenta', 'cyan', 'limegreen' ]
@@ -71,16 +48,6 @@ parser.add_argument('-awg', type=int, choices=range(0, 3), dest='cawg', default=
 parser.add_argument('-vmin', type=int, dest='vmin', default=0, metavar='vmin', help="AWG minimum DC voltage (default is 0)")
 parser.add_argument('-vmax', type=int, dest='vmax', default=1, metavar='vmax', help="AWG maximum DC voltage (default is 1)")
 args = parser.parse_args()
-
-rm = pyvisa.ResourceManager()
-awg = None
-for instr in rm.list_resources():
-	match = re.search("::SDS.*::INSTR$", instr)
-	if match:
-		dso = rm.open_resource(instr)
-	match = re.search("::SDG.*::INSTR$", instr)
-	if match:
-		awg = rm.open_resource(instr)
 
 awgch = f"C{args.cawg}"
 dvawg = 0
@@ -126,15 +93,14 @@ while n < args.limit or args.limit == 0:
 	xpts.append(elapsed)
 	print(f"{now},{elapsed:9.3f}", end='')
 	for idx, ch in enumerate(channels):
-		v = measure_sample(ch)
+		v = measure_level(ch)
 		ypts[idx].append(v)
 		print(f",{v:9.5f}", end='')
 	print()
 	n = n + 1
 	time.sleep(args.interval)
 
-dso.close()
-if awg != None: awg.close()
+close_resources()
 
 if args.plot:
 	plot(xpts, ypts, channels)

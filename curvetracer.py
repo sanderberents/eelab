@@ -19,47 +19,13 @@ import re
 import argparse
 import pyvisa
 import matplotlib.pyplot as plt
-
-def errprint(*args, **kwargs):
-	print(*args, file=sys.stderr, **kwargs)
+from eelib import *
 
 def wait():
 	"""Small delay for DSO or AWG command processing."""
 	time.sleep(0.5)
 	dso.query("*OPC?")
 	
-def active_channels():
-	"""Returns active DSO channels."""
-	channels = []
-	for ch in ['C1', 'C2', 'C3', 'C4']:
-		s = dso.query(f"{ch}:TRA?").strip()
-		match = re.search("^(C\d):TRA ON$", s)
-		if match: channels.append(match.group(1))
-	return channels
-
-def measure_hscale():
-	"""Returns horizontal scale per division."""
-	s = dso.query(f"TDIV?").strip()
-	match = re.search("^TDIV ([-+0-9.E]+)S$", s)
-	if match:
-		t = float(match.group(1))
-	else:
-		errprint(f"Error parsing: {s}")
-		sys.exit(2)
-	return t
-
-def measure_mean(ch):
-	"""Returns mean of given DSO channel."""
-	# Assumes optimal vertical scale
-	s = dso.query(f"{ch}:PAVA? MEAN").strip()
-	match = re.search("^C\d:PAVA MEAN,(.*)V$", s)
-	if match and not match.group(1).startswith("*"):
-		v = float(match.group(1))
-	else:
-		errprint(f"Error parsing V: {s}")
-		sys.exit(2)
-	return v
-
 def position_gate_init(t, dt):
 	dso.write(f"MEGA {t - dt / 2}s")
 	dso.write(f"MEGB {t + dt / 2}s")
@@ -106,16 +72,6 @@ parser.add_argument('-vmax', type=float, dest='vmax', default=2, metavar='vmax',
 parser.add_argument('-n', type=int, choices=range(1, 11), dest='iterations', default=5, metavar='steps', help="Number of DC steps (default is 5)")
 parser.add_argument('-q', type=int, choices=range(1, 11), dest='quality', default=1, metavar='quality', help="Output quality ([1-10], default is 1)")
 args = parser.parse_args()
-
-rm = pyvisa.ResourceManager()
-awg = None
-for instr in rm.list_resources():
-	match = re.search("::SDS.*::INSTR$", instr)
-	if match:
-		dso = rm.open_resource(instr)
-	match = re.search("::SDG.*::INSTR$", instr)
-	if match:
-		awg = rm.open_resource(instr)
 
 channels = active_channels()
 if (len(channels) == 0): sys.exit()
@@ -192,11 +148,10 @@ for i in range(0, iterations):
 
 dso.write(f"MEGS OFF")
 
-dso.close()
 if awg != None:
 	if args.cawg != 0: awg.write(f"{cawgch}:OUTP OFF")
 	if args.dcawg != 0: awg.write(f"{dcawgch}:OUTP OFF")
-	awg.close()
+close_resources()
 
 plt.figure()
 plot(iterations, xpts, ypts, channels)

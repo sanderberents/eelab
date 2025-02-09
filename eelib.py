@@ -3,6 +3,7 @@
 import time
 import sys
 import math
+import array
 import re
 import struct
 import enum
@@ -36,6 +37,28 @@ def active_channels():
 		match = re.search("^(C\d):TRA ON$", s)
 		if match: channels.append(match.group(1))
 	return channels
+
+def measure_vscale(ch):
+	"""Returns vertical scale per division."""
+	s = dso.query(f"{ch}:VDIV?").strip()
+	match = re.search(f"^{ch}:VDIV ([-+0-9.E]+)V$", s)
+	if match:
+		v = float(match.group(1))
+	else:
+		errprint(f"Error parsing: {s}")
+		sys.exit(7)
+	return v
+
+def measure_voffset(ch):
+	"""Returns vertical offset."""
+	s = dso.query(f"{ch}:OFST?").strip()
+	match = re.search(f"^{ch}:OFST ([-+0-9.E]+)V$", s)
+	if match:
+		v = float(match.group(1))
+	else:
+		errprint(f"Error parsing: {s}")
+		sys.exit(8)
+	return v
 
 def vautoscale(ch, iterations = 2, vdiv = 7.5):
 	"""Automatic vertical offset and scale adjustment."""
@@ -132,6 +155,41 @@ def measure_phase(ch1, ch2):
 		errprint(f"Error parsing phase: {s}")
 		sys.exit(4)
 	return phase
+
+def nsamples(ch):
+	"""Returns number of samples."""
+	s = dso.query(f"SANU? {ch}").strip()
+	match = re.search("^SANU (.*)pts$", s)
+	if match:
+		n = float(match.group(1))
+	else:
+		errprint(f"Error parsing: {s}")
+		sys.exit(5)
+	return math.floor(n)
+	
+def fetch(ch):
+	"""Returns waveform data of a channel."""
+	vscale = measure_vscale(ch)
+	voffset = measure_voffset(ch)
+	data = array.array('f')
+	stride = 1
+	batchsize = 20 # Apparent limit on SDS1104X-U
+	n = nsamples(ch)
+	for i in range(0, n, batchsize):
+		dso.write(f"WFSU SP,{stride},NP,{batchsize},FP,{i}")
+		dso.write(f"{ch}:WF? DAT2")
+		rawdata = dso.read_raw()
+		remaining = min(batchsize, n - i + 1)
+		header = f"{ch}:WF DAT2,#90{remaining:08d}"
+		if (rawdata[0:len(header)].decode() == header):
+			for b in list(rawdata[len(header): -2]):
+				if b > 127: b = b - 256
+				v = b * (vscale / 25) - voffset
+				data.append(v)
+		else:
+			errprint(f"Error parsing: {rawdata}")
+			sys.exit(6)
+	return data
 
 def close_resources():
 	for instr in resources:

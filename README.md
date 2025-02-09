@@ -10,6 +10,7 @@ Prerequisites:
 
 Scripts:
 
+- [Plot](#plot)
 - [Bode Plot](#bodeplot)
 - [Curve Tracer](#curvetracer)
 - [Data Logger](#datalogger)
@@ -17,6 +18,23 @@ Scripts:
 - [SCPI Utility](#scpi)
 
 [SDS1104X-U Limitations and Firmware bugs](SDS1104X-U.md)
+
+<a name="plot"></a>
+## Plot
+
+Fetches and plots up to 14,000 data points from the active SDS1104X-U scope channels, optionally averaging multiple sweeps.
+
+![Plot](img/plot.png)
+
+	usage: plot.py [-h] [-n navg]
+	
+	Plot
+	
+	optional arguments:
+	-h, --help  show this help message and exit
+	-n navg     Number of sweeps to average (default is 1)
+	
+	Fetches and plots up to 14,000 data points from the active SDS1104X-U scope channels, optionally averaging multiple sweeps.
 
 <a name="bodeplot"></a>
 ## Bode Plot

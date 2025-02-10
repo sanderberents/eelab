@@ -1,6 +1,6 @@
 # Home Electronics Lab
 
-Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform Generator with SCPI. Because of firmware bugs and the resulting inability to download samples directly from the oscilloscope, the scripts use different approaches to obtain the necessary measurements.
+Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform Generator with SCPI. Because of firmware bugs and the limited ability to download samples directly from the oscilloscope, the scripts use different approaches to obtain the necessary measurements.
 
 Prerequisites:
 
@@ -35,6 +35,13 @@ Fetches and plots up to 14,000 data points from the active SDS1104X-U scope chan
 	-n navg     Number of sweeps to average (default is 1)
 	
 	Fetches and plots up to 14,000 data points from the active SDS1104X-U scope channels, optionally averaging multiple sweeps.
+
+This script is an ideal candidate for adding as Shortcut menubar item. On my Mac, I created a menu bar Shell Script shortcut with the Shortcuts application:
+
+	DIR=~/Projects/eelab
+	$DIR/plot.py
+
+I added two more variants with `-n 4` and `-n 16` for sweep averaging.
 
 <a name="bodeplot"></a>
 ## Bode Plot

@@ -66,9 +66,9 @@ def vautoscale(ch, iterations = 2, vdiv = 7.5):
 	for i in range(0, iterations):
 		if i > 0: time.sleep(0.1)
 		s = dso.query(f"{ch}:PAVA? MIN").strip()
-		match1 = re.search("^C\d:PAVA MIN,(.*)V$", s)
+		match1 = re.search(f"^{ch}:PAVA MIN,(.*)V$", s)
 		s = dso.query(f"{ch}:PAVA? MAX").strip()
-		match2 = re.search("^C\d:PAVA MAX,(.*)V$", s)
+		match2 = re.search(f"^{ch}:PAVA MAX,(.*)V$", s)
 		if match1 and match2 and not match1.group(1).startswith("*") and not match2.group(1).startswith("*"):
 			vmin = float(match1.group(1))
 			vmax = float(match2.group(1))
@@ -108,7 +108,7 @@ def measure_vpp(ch):
 	"""Returns Vpp of given DSO channel."""
 	# Assumes optimal vertical scale
 	s = dso.query(f"{ch}:PAVA? PKPK").strip()
-	match = re.search("^C\d:PAVA PKPK,(.*)V$", s)
+	match = re.search(f"^{ch}:PAVA PKPK,(.*)V$", s)
 	if match and not match.group(1).startswith("*"):
 		vpp = float(match.group(1))
 	else:
@@ -120,7 +120,7 @@ def measure_mean(ch):
 	"""Returns mean of given DSO channel."""
 	# Assumes optimal vertical scale
 	s = dso.query(f"{ch}:PAVA? MEAN").strip()
-	match = re.search("^C\d:PAVA MEAN,(.*)V$", s)
+	match = re.search(f"^{ch}:PAVA MEAN,(.*)V$", s)
 	if match and not match.group(1).startswith("*"):
 		v = float(match.group(1))
 	else:
@@ -132,7 +132,7 @@ def measure_level(ch):
 	"""Returns V of given DSO channel at the trigger point."""
 	# Assumes optimal vertical scale
 	s = dso.query(f"{ch}:PAVA? LEVELX").strip()
-	match = re.search("^C\d:PAVA LEVELX,(.*)V$", s)
+	match = re.search(f"^{ch}:PAVA LEVELX,(.*)V$", s)
 	if match:
 		sample = float(match.group(1))
 	else:
@@ -145,7 +145,7 @@ def measure_phase(ch1, ch2):
 	# Assumes optimal horizontal and vertical scales
 	dso.write(f"{ch2}-{ch1}:MEAD? PHA") # Query returns extra \xa1\xe3 data, so using read_raw
 	s = dso.read_raw()[:-2].decode()
-	match = re.search("^C\d-C\d:MEAD PHA,(.*)$", s)
+	match = re.search(f"^{ch2}-{ch1}:MEAD PHA,(.*)$", s)
 	if match:
 		if match.group(1).startswith("*"):
 			phase = 0

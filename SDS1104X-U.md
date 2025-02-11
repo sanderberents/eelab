@@ -1,6 +1,6 @@
 # SDS1104X-U
 
-The SDS1104X-U is an 8-bit oscilloscope similar to the SDS1104X-E but with a reduced feature set and similar limitations. With the release of the SDS800X HD series, neither of these should be considered for purchase, but if you own one already, there is no need to immediate replace it. Its main issue is the strict 8-bits math and acquisition modes, and that, unlike the SDS1104X-E and other Siglent products, it has never received even a single firmware update since its launch in 2021. It is a reliable oscilloscope in daily use, albeit with a buggy SCPI subsystem. In this document I will list some of the limitations and bugs I ran into.
+The SDS1104X-U is an 8-bit oscilloscope similar to the SDS1104X-E but with a reduced feature set. With the release of the SDS800X HD series, neither of these should be considered for purchase, but if you own one already, there is no need to immediate replace it. Its main issue is the strict 8-bits math and acquisition modes, and that, unlike the SDS1104X-E and other Siglent products, it has never received even a single firmware update since its launch in 2021. It is a reliable oscilloscope in daily use, albeit with a buggy SCPI subsystem. In this document I will list some of the limitations and bugs I ran into.
 
 - Firmware: 1.1.5R6 (2021-05-11).
 - Connection: USB

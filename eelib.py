@@ -204,9 +204,13 @@ for instr in rm.list_resources():
 	match = re.search("::SDG.*::INSTR$", instr)
 	if match:
 		resources['awg'] = rm.open_resource(instr)
-
+	match = re.search("::SPD.*::INSTR$", instr)
+	if match:
+		resources['psu'] = rm.open_resource(instr)
+	
 dso = resources['dso'] if 'dso' in resources else None
 awg = resources['awg'] if 'awg' in resources else None
+psu = resources['psu'] if 'psu' in resources else None
 
 # Module Tests
 if __name__ == "__main__":

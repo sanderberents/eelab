@@ -1,10 +1,10 @@
 # Home Electronics Lab
 
-Controlling the Siglent SDS1104X-U oscilloscope and SDG1032X Arbitrary Waveform Generator with SCPI. Because of firmware bugs and the limited ability to download samples directly from the oscilloscope, the scripts use different approaches to obtain the necessary measurements.
+Controlling the Siglent SDS1104X-U oscilloscope, SDG1032X Arbitrary Waveform Generator and SPD4323X Linear DC Power Supply with SCPI. Because of firmware bugs and the limited ability to download samples directly from the oscilloscope, the scripts use different approaches to obtain the necessary measurements.
 
 Prerequisites:
 
-- SDS1104X-U and SDG1032X connected to the computer with USB cables
+- SDS1104X-U, SDG1032X and SPD4323X connected to the computer with USB cables
 - `pip3 install -U pyvisa`
 - `pip3 install -U matplotlib`
 
@@ -156,7 +156,7 @@ I then added it to the menu bar, and assigned the `Control-Option-Command-A` key
 <a name="scpi"></a>
 # SCPI Utility
 
-SCPI utility for SDS1104X-U and DSG1032X.
+SCPI utility for SDS1104X-U, DSG1032X and SPD4323X.
 
 For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD? PHA" -x`.
 
@@ -165,7 +165,7 @@ For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD
 	SCPI Utility
 	
 	positional arguments:
-	target      Target instrument (one of 'dso' or 'awg')
+	target      Target instrument (one of 'dso', 'awg' or 'psu')
 	
 	optional arguments:
 	-h, --help  show this help message and exit
@@ -173,5 +173,4 @@ For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD
 	-c command  SCPI command
 	-x          Output query result as byte array
 	
-	Submit SCPI command or query to SDS1104X-U or DSG1032X.
-	
+	Submit SCPI command or query to SDS1104X-U, DSG1032X or SPD4323X.

@@ -8,6 +8,7 @@ import re
 import struct
 import enum
 import pyvisa
+import configparser
 
 def errprint(*args, **kwargs):
 	print(*args, file=sys.stderr, **kwargs)
@@ -197,17 +198,32 @@ def close_resources():
 
 rm = pyvisa.ResourceManager()
 resources = {}
-for instr in rm.list_resources():
-	match = re.search("::SDS.*::INSTR$", instr)
-	if match:
-		resources['dso'] = rm.open_resource(instr)
-	match = re.search("::SDG.*::INSTR$", instr)
-	if match:
-		resources['awg'] = rm.open_resource(instr)
-	match = re.search("::SPD.*::INSTR$", instr)
-	if match:
-		resources['psu'] = rm.open_resource(instr)
-	
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+defaults = config['DEFAULT']
+
+try:
+	if 'dso_instr' in defaults:
+		resources['dso'] = rm.open_resource(defaults['dso_instr'])
+	if 'awg_instr' in defaults:
+		resources['awg'] = rm.open_resource(defaults['awg_instr'])
+	if 'psu_instr' in defaults:
+		resources['psu'] = rm.open_resource(defaults['psu_instr'])
+
+	for instr in rm.list_resources():
+		match = re.search("::SDS.*::INSTR$", instr)
+		if match:
+			resources['dso'] = rm.open_resource(instr)
+		match = re.search("::SDG.*::INSTR$", instr)
+		if match:
+			resources['awg'] = rm.open_resource(instr)
+		match = re.search("::SPD.*::INSTR$", instr)
+		if match:
+			resources['psu'] = rm.open_resource(instr)
+except OSError as e:
+	sys.exit(f"Unable to connect to instrument: {e}")
+
 dso = resources['dso'] if 'dso' in resources else None
 awg = resources['awg'] if 'awg' in resources else None
 psu = resources['psu'] if 'psu' in resources else None

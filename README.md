@@ -158,19 +158,18 @@ I then added it to the menu bar, and assigned the `Control-Option-Command-A` key
 
 SCPI utility for SDS1104X-U, DSG1032X and SPD4323X.
 
-For example, `./scpi.py dso -q "C1:PAVA? PKPK"` or `./scpi.py dso -q "C1-C2:MEAD? PHA" -x`.
+For example, `./scpi.py dso "C1:PAVA? PKPK"` or `./scpi.py dso "C1-C2:MEAD? PHA" -x`.
 
-	usage: scpi.py [-h] [-q query] [-c command] [-x] target
+	usage: scpi.py [-h] [-x] target command
 	
 	SCPI Utility
 	
 	positional arguments:
 	target      Target instrument (one of 'dso', 'awg' or 'psu')
+	command     SCPI query or command
 	
 	optional arguments:
 	-h, --help  show this help message and exit
-	-q query    SCPI query
-	-c command  SCPI command
 	-x          Output query result as byte array
 	
-	Submit SCPI command or query to SDS1104X-U, DSG1032X or SPD4323X.
+	Submit SCPI query or command to SDS1104X-U, DSG1032X or SPD4323X.
